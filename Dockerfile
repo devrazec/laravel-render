@@ -1,15 +1,39 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM php:8.2-fpm
 
+# System deps
+RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
+    unzip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    sqlite3 \
+    libsqlite3-dev \
+    curl
+
+# PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring bcmath gd
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# ✅ IMPORTANT: correct working dir
+WORKDIR /var/www/html
+
+# Copy app
 COPY . .
 
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Install deps
+RUN composer install --no-dev --optimize-autoloader
 
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-CMD ["/start.sh"]
+# Nginx
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD service nginx start && php-fpm

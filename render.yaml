@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: laravel-app
+    name: laravel
     env: docker
     plan: free
     autoDeploy: true
