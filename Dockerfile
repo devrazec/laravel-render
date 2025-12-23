@@ -11,10 +11,12 @@ RUN apt-get update && apt-get install -y \
     zip \
     sqlite3 \
     libsqlite3-dev \
-    curl
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite pdo_pgsql mbstring bcmath gd
 
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -26,13 +28,12 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install deps
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader \
+    && npm install \
+    && npm run build
 
 # Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
-
-# Nginx
-COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
