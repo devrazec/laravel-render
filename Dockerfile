@@ -27,8 +27,14 @@ RUN composer install --no-interaction --optimize-autoloader \
     && npm install \
     && npm run build
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache public/build
+# Ownership
+RUN chown -R www-data:www-data /var/www/html
+
+# App files: read-only for group
+RUN chmod -R 755 /var/www/html
+
+# Writable Laravel directories
+RUN chmod -R 775 storage bootstrap/cache public/build
 
 EXPOSE 80
 
