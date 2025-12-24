@@ -28,7 +28,7 @@ RUN composer install --no-interaction --optimize-autoloader \
     && npm run build
 
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache public/build
 
 EXPOSE 80
 
