@@ -39,43 +39,16 @@ composer update
 php artisan serve --port=8080
 php artisan serve
 
--- Run Frontend
-
-npm run dev
-
--- Flowbite UI
-
-npm i -S flowbite-react
-npm i -D flowbite-typography
-npm i -S tailwind-merge lucide-react tw-animate-css
-
--- Primereact UI
-
-npm i -S primereact
-
--- Icons
-
-npm i -D flowbite-react-icons @iconify-icon/react iconsax-react react-icons flag-icons primeicons
-
--- Maps
-
-npm i -S leaflet leaflet-draw react-leaflet@next react-leaflet-cluster react-leaflet-draw
-
-npm i -S leaflet-fullscreen
-
 -- Docker
 
-docker build -t laravel-docker -f DockerfileApache .
-
-docker build -t laravel-docker -f DockerfileNginx .
+docker build -t laravel-render -f Dockerfile .
 
 docker run -itd \
 --restart unless-stopped \
---name laravel-docker \
---hostname laravel-docker.local \
+--name laravel-render \
+--hostname laravel-render.local \
 -p 80:80 \
--p 5173:5173 \
-laravel-docker
+laravel-render
 
 ```
 
