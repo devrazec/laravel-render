@@ -24,8 +24,7 @@ COPY . /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 RUN composer install --no-interaction --optimize-autoloader \
-    && npm install \
-    && npm run build
+    && npm install
 
 # Ownership
 RUN chown -R www-data:www-data /var/www/html
