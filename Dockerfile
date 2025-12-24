@@ -1,40 +1,38 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# System deps
+WORKDIR /var/www/html
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    nginx \
-    git \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    sqlite3 \
-    libsqlite3-dev \
-    curl \
+    git curl zip unzip sqlite3 libsqlite3-dev \
+    libpng-dev libonig-dev libxml2-dev \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite pdo_pgsql mbstring bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
 
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Enable mod_rewrite
+RUN a2enmod ssl rewrite headers
 
-# ✅ IMPORTANT: correct working dir
-WORKDIR /var/www/html
+# Copy your Apache config file
+COPY ports.conf /etc/apache2/ports.conf
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Copy app
-COPY . .
+COPY . /var/www/html 
 
-# Install deps
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
 RUN composer install --no-interaction --optimize-autoloader \
     && npm install \
     && npm run build
 
-# Permissions
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
-CMD service nginx start && php-fpm
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

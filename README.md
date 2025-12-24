@@ -1,18 +1,84 @@
-# laravel-render
-Laravel 11 with a Docker PHP Image
+# Laravel as a Docker on render.com
 
-Source: https://github.com/render-examples/php-laravel-docker
+Building a Project with Laravel + React + Docker + Apache + SQLite
 
 # Commands
 
 ```
-composer update
-composer install
+
+-- Create App
+
+composer create laravel/laravel .
+
 npm i
+
+php artisan migrate:fresh
+
+php artisan db:seed
 
 php artisan key:generate
 php artisan key:generate --show
 
+-- Edit composer.json 
+
+"require": { 
+    "ext-pdo_sqlite": "*",
+    "ext-sqlite3": "*"
+}
+
+composer update
+npm run build
+
+-- Composer
+
+change /laravel-docker/composer.lock where are "^8.4", to 8.2
+composer update
+
+-- Run Bankend
+
 php artisan serve --port=8080
+php artisan serve
+
+-- Run Frontend
+
+npm run dev
+
+-- Flowbite UI
+
+npm i -S flowbite-react
+npm i -D flowbite-typography
+npm i -S tailwind-merge lucide-react tw-animate-css
+
+-- Primereact UI
+
+npm i -S primereact
+
+-- Icons
+
+npm i -D flowbite-react-icons @iconify-icon/react iconsax-react react-icons flag-icons primeicons
+
+-- Maps
+
+npm i -S leaflet leaflet-draw react-leaflet@next react-leaflet-cluster react-leaflet-draw
+
+npm i -S leaflet-fullscreen
+
+-- Docker
+
+docker build -t laravel-docker -f DockerfileApache .
+
+docker build -t laravel-docker -f DockerfileNginx .
+
+docker run -itd \
+--restart unless-stopped \
+--name laravel-docker \
+--hostname laravel-docker.local \
+-p 80:80 \
+-p 5173:5173 \
+laravel-docker
 
 ```
+
+# Links
+
+
